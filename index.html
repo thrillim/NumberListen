@@ -251,6 +251,7 @@
       const synth = window.speechSynthesis;
       synth.cancel(); // clear remain voice
       const utterance = new SpeechSynthesisUtterance(sequence.join(', '));
+      utterance.lang = "en-US";
       utterance.rate = parseFloat(speedDisplay.innerText);
       synth.speak(utterance);
     }
