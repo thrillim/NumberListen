@@ -18,10 +18,10 @@
     class="p-2"
   >
     <div class="text-3xl font-bold p-5 text-center">Random Number Sequence Game</div>
-    <p class="text-center">Click <span class="font-bold drop-shadow	">Play</span> button to listen a sequence of
+    <p class="text-center">Click <span class="font-bold drop-shadow" onclick="animatePlay()">Play</span> button to listen a sequence of
       <span
         id="quantity-display"
-        class="text-secondary-focus font-bold"
+        class="text-secondary-focus font-bold hover:text-2xl hover:transition duration-1000"
       >30</span>
       <input
         class="text-secondary-focus font-bold"
@@ -36,7 +36,7 @@
       random numbers between
       <span
         id="smallest-display"
-        class="text-accent-focus font-bold"
+        class="text-accent-focus font-bold hover:text-2xl hover:transition duration-1000 motion-reduce:transition-none "
       >2</span>
       <input
         class="text-accent-focus font-bold"
@@ -51,7 +51,7 @@
       and
       <span
         id="largest-display"
-        class="text-accent-focus font-bold"
+        class="text-accent-focus font-bold hover:text-2xl hover:transition duration-1000"
       >10000</span>
       <input
         class="text-accent-focus font-bold"
@@ -66,7 +66,7 @@
       with the speed of
       <span
         id="speed-display"
-        class="text-primary font-bold"
+        class="text-primary font-bold hover:text-2xl hover:transition duration-1000"
       >1</span>
       <input
         class="text-primary font-bold"
@@ -295,6 +295,27 @@
     function viewSequence() {
       // show sequence without 'BEGIN' and 'END'
       alert(sequence.slice(1, sequence.length - 1).join(' '));
+    }
+
+    function animatePlay() {
+      speakButton.style.borderColor = 'red';
+      // speakButton.style.opacity = '0.6';
+      setTimeout(() => {
+        speakButton.style.borderColor = '';
+        // speakButton.style.opacity = '';
+      }, 500);
+      // Add bounce effect
+      speakButton.animate(
+        [
+          { transform: 'scale(1)' },
+          { transform: 'scale(1.05)' },
+          { transform: 'scale(1)' }
+        ],
+        {
+          duration: 500,
+          easing: 'ease-in-out'
+        }
+      );
     }
   </script>
 </body>
