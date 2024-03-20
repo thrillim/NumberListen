@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html data-theme="cupcake">
+
+<head>
+  <meta charset="UTF-8">
+  <link
+    href="https://cdn.jsdelivr.net/npm/daisyui@3.5.0/dist/full.css"
+    rel="stylesheet"
+    type="text/css"
+  />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Random Number Sequence Game</title>
+</head>
+
+<body>
+  <div
+    id="container"
+    class="p-2"
+  >
+    <div class="text-3xl font-bold p-5 text-center">Random Number Sequence Game</div>
+    <p class="text-center">Click <span class="font-bold drop-shadow	">Play</span> button to listen a sequence of
+      <span
+        id="quantity-display"
+        class="text-secondary-focus font-bold"
+      >30</span>
+      <input
+        class="text-secondary-focus font-bold"
+        type="number"
+        id="quantity"
+        name="quantity"
+        min="2"
+        max="30"
+        value="30"
+        hidden
+      />
+      random numbers between
+      <span
+        id="smallest-display"
+        class="text-accent-focus font-bold"
+      >2</span>
+      <input
+        class="text-accent-focus font-bold"
+        type="number"
+        id="smallest"
+        name="smallest"
+        min="0"
+        max="10000"
+        value="2"
+        hidden
+      />
+      and
+      <span
+        id="largest-display"
+        class="text-accent-focus font-bold"
+      >10000</span>
+      <input
+        class="text-accent-focus font-bold"
+        type="number"
+        id="largest"
+        name="largest"
+        min="0"
+        max="10000"
+        value="10000"
+        hidden
+      />
+      with the speed of
+      <span
+        id="speed-display"
+        class="text-primary font-bold"
+      >1</span>
+      <input
+        class="text-primary font-bold"
+        type="number"
+        id="speed"
+        name="speed"
+        min="0.1"
+        max="3"
+        value="1"
+        step="0.1"
+        hidden
+      />
+      x.
+    </p>
+    <p class="text-info text-center">Reloading or changing params (<span class="text-secondary-focus font-bold">quantity</span>, <span class="text-accent-focus font-bold">sequence's range</span>) always generate a new sequence.</p>
+    <p class="text-center">You can change colorful <span class="text-secondary-focus font-bold">p</span><span class="text-accent-focus font-bold">ar</span><span class="text-primary font-bold">ams</span> by clicking on them.</p>
+    <div class="flex flex-row mx-auto text-center justify-center gap-2 py-5">
+      <button
+        id="speak-button"
+        onclick="speakSequence()"
+        class="btn btn-primary btn-sm"
+      >Play</button>
+      <button
+        id="stop-button"
+        onclick="stopSequence()"
+        class="btn btn-error btn-sm"
+        hidden
+      >Stop</button>
+      <button
+        id="continue-button"
+        onclick="continueSequence()"
+        class="btn btn-warning btn-sm"
+        hidden
+      >
+        Continue</button>
+      <button
+        id="newseq-button"
+        onclick="updateDisplay()"
+        class="btn btn-primary btn-sm"
+        hidden
+      >
+        New sequence</button>
+    </div>
+    <label for="sequence-input">Your answer:</label>
+    <input
+      type="text"
+      id="sequence-input"
+      class="w-full h-10 p-2 my-2 border border-gray-300 rounded-lg"
+      placeholder="Separated by spaces e.g: 1 2 43 56 128"
+    >
+    <button
+      onclick="viewSequence()"
+      class="btn btn-sm"
+    >View Sequence</button>
+    <button
+      onclick="checkSequence()"
+      class="btn btn-primary btn-sm"
+    >Check</button>
+  </div>
+
+  <script>
+    const MIN_QUANTITY = 2;
+    const MAX_QUANTITY = 30;
+    const MAX_SPEED = 3;
+    const MIN_SPEED = 0.1;
+    const MAX_RANGE = 10000;
+    const MIN_RANGE = 0;
+
+    const speakButton = document.getElementById('speak-button');
+    const stopButton = document.getElementById('stop-button');
+    const continueButton = document.getElementById('continue-button');
+    const newseqButton = document.getElementById('newseq-button');
+
+
+    const quantityDisplay = document.getElementById('quantity-display');
+    const smallestDisplay = document.getElementById('smallest-display');
+    const largestDisplay = document.getElementById('largest-display');
+    const speedDisplay = document.getElementById('speed-display');
+    const quantity = document.getElementById('quantity');
+    const smallest = document.getElementById('smallest');
+    const largest = document.getElementById('largest');
+    const speed = document.getElementById('speed');
+
+    let sequence = [];
+
+    function updateDisplay() {
+      // // clear remain voice
+      // const synth = window.speechSynthesis;
+      // synth.cancel();
+
+      quantityDisplay.innerText = quantity.value;
+      smallestDisplay.innerText = smallest.value;
+      largestDisplay.innerText = largest.value;
+
+      speakButton.innerHTML = 'Play'
+      stopButton.hidden = true;
+      continueButton.hidden = true;
+      newseqButton.hidden = true;
+
+      const num = parseInt(quantityDisplay.innerText);
+      const max = Math.max(parseInt(smallestDisplay.innerText), parseInt(largestDisplay.innerText));
+      const min = (parseInt(smallestDisplay.innerText) + parseInt(largestDisplay.innerText)) - max;
+      sequence = createSquence(num, max, min);
+
+      // console.log(num, max, min, sequence);
+    }
+
+    updateDisplay();
+
+    quantityDisplay.addEventListener('click', () => {
+      quantityDisplay.hidden = true;
+      quantity.hidden = false;
+      quantity.focus();
+    });
+
+    quantity.addEventListener('blur', () => {
+      quantityDisplay.hidden = false;
+      quantity.hidden = true;
+      if (quantity.value < MIN_QUANTITY) quantity.value = MIN_QUANTITY;
+      if (quantity.value > MAX_QUANTITY) quantity.value = MAX_QUANTITY;
+      updateDisplay();
+    });
+
+    smallestDisplay.addEventListener('click', () => {
+      smallestDisplay.hidden = true;
+      smallest.hidden = false;
+      smallest.focus();
+    });
+
+    smallest.addEventListener('blur', () => {
+      smallestDisplay.hidden = false;
+      smallest.hidden = true;
+      if (smallest.value < MIN_RANGE) smallest.value = MIN_RANGE;
+      if (smallest.value > MAX_RANGE) smallest.value = MAX_RANGE;
+      updateDisplay();
+    });
+
+    largestDisplay.addEventListener('click', () => {
+      largestDisplay.hidden = true;
+      largest.hidden = false;
+      largest.focus();
+    });
+
+    largest.addEventListener('blur', () => {
+      largestDisplay.hidden = false;
+      largest.hidden = true;
+      if (largest.value < MIN_RANGE) largest.value = MIN_RANGE;
+      if (largest.value > MAX_RANGE) largest.value = MAX_RANGE;
+      updateDisplay();
+    });
+
+    speedDisplay.addEventListener('click', () => {
+      speedDisplay.hidden = true;
+      speed.hidden = false;
+      speed.focus();
+    });
+
+    speed.addEventListener('blur', () => {
+      // // clear remain voice
+      // const synth = window.speechSynthesis;
+      // synth.cancel();
+
+      speedDisplay.hidden = false;
+      speed.hidden = true;
+      if (speed.value < MIN_SPEED) speed.value = MIN_SPEED;
+      if (speed.value > MAX_SPEED) speed.value = MAX_SPEED;
+      speedDisplay.innerText = speed.value;
+    });
+
+    function createSquence(num, max, min) {
+      const sequence = Array.from({length: num}, () => Math.floor(Math.random() * (max - min + 1)) + min);
+      return ['BEGIN ', ...sequence, ' END.'];
+    }
+
+    // Speak the sequence out loud using the Web Speech API
+    function speakSequence() {
+      speakButton.innerText = 'Play again';
+      stopButton.hidden = false;
+      continueButton.hidden = false;
+      newseqButton.hidden = false;
+      continueButton.disable = true;
+      const synth = window.speechSynthesis;
+      synth.cancel(); // clear remain voice
+      const utterance = new SpeechSynthesisUtterance(sequence.join(', '));
+      utterance.rate = parseFloat(speedDisplay.innerText);
+      synth.speak(utterance);
+    }
+
+    function stopSequence() {
+      const synth = window.speechSynthesis;
+      synth.pause(); // stop the speech playback
+    }
+
+    function continueSequence() {
+      const synth = window.speechSynthesis;
+      synth.resume(); // resume the speech playback
+    }
+
+    function findFirstDiffPos(a, b)
+    {
+      var longerLength = Math.max(a.length, b.length);
+      for (var i = 0; i < longerLength; i++)
+      {
+        if (a[i] !== b[i]) return i;
+      }
+
+      return -1;
+    }
+
+    // Check if the sequence entered by the user matches the generated sequence
+    function checkSequence() {
+      const input = document.getElementById('sequence-input').value;
+      const inputSequence = input.split(' ').map(str => Number(str.trim()));
+      const inputSequenceString = JSON.stringify(inputSequence);
+      const sequenceString = JSON.stringify(sequence.slice(1, sequence.length - 1));
+      const isMatch = inputSequenceString === sequenceString;
+      alert(isMatch ? 'You got it right!' : 'Sorry, that was incorrect begin from position ' + findFirstDiffPos(inputSequenceString, sequenceString) + '.');
+      console.log(inputSequenceString)
+      console.log(sequenceString);
+    }
+
+    function confetti() {
+      // 
+    }
+
+    function viewSequence() {
+      // show sequence without 'BEGIN' and 'END'
+      alert(sequence.slice(1, sequence.length - 1).join(' '));
+    }
+  </script>
+</body>
+
+</html>
